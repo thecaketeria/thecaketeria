@@ -1,0 +1,789 @@
+<!doctype html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="./material.min.css">
+<script src="./material.min.js"></script>
+<script type="text/javascript" src="scripts.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+
+<title>The Caketeria</title>
+</head>
+
+<body>
+
+<!-- Simple header with fixed tabs. -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header
+            mdl-layout--fixed-tabs">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+      <!-- Title -->
+      <img src="assets/images/logo.png" alt="logo" width="118" height="27">
+      <div class="mdl-layout-spacer"></div>
+      <button id="shoppingCartButton" style="color:white" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+  		Shopping Cart <i class="material-icons" style="color: white">shopping_cart</i>
+	  </button>
+      
+    </div>
+    <!-- Tabs -->
+    <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
+      <a href="#fixed-tab-1" class="mdl-layout__tab is-active"><strong>Home</strong></a>
+      <a href="#fixed-tab-2" class="mdl-layout__tab"><strong>Cake Menu</strong></a>
+      <a href="#fixed-tab-3" class="mdl-layout__tab"><strong>Custom Cakes</strong></a>
+    </div>
+  </header>
+	
+  <main class="mdl-layout__content">
+	  
+
+	<!-- The Modal -->
+	<div id="myModal" class="modal">
+		 <!-- Modal content -->
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<h3 style="color: #667c8a"><strong>Your cart:</strong></h3>
+			<ul id="cart"></ul>
+			<p style="border-bottom: 1px solid #667c8a;">Subotal: 	$<span id="cart_money"></span></p>
+			<p style="border-bottom: 1px solid #667c8a;">Total:  		$<span id="cart_money2"></span></p>
+			
+			<br><br>
+			<h3 style="color: #667c8a"><strong>Payment Type:</strong></h3>
+			
+			<label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="payment_cash">
+			  <input onClick="clearTabs()" type="radio" id="payment_cash" class="mdl-radio__button" name="payment">
+			  <span class="mdl-radio__label">Cash</span>
+			</label><br>
+			<label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="payment_creditdebit">
+			  <input onClick="payCredit()" type="radio" id="payment_creditdebit" class="mdl-radio__button" name="payment">
+			  <span class="mdl-radio__label">Credit/Debit</span>
+			</label><br>
+			<label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="payment_paypal">
+			  <input onClick="payPaypal()" type="radio" id="payment_paypal" class="mdl-radio__button" name="payment">
+			  <span class="mdl-radio__label">PayPal</span>
+			</label><br>
+			
+			<!-- create credit card/debit card div -->
+			<div style="display: none" id="creditDiv">
+				<table width="500" border="0" cellspacing="0" cellpadding="0">
+				  <tbody>
+					<tr>
+					  <td valign="baseline"><p>Credit Card Number: </p></td>
+					  <td valign="baseline">
+						<form action="#">
+						  <div class="mdl-textfield mdl-js-textfield">
+							<input class="mdl-textfield__input" type="text" id="sample1">
+							<label class="mdl-textfield__label" for="sample1">16 characters</label>
+						  </div>
+						</form>
+					  </td>
+					</tr>
+					<tr>
+					  <td><p>Expiration Date: </p></td>
+					  <td>
+						<form action="#">
+						  <div class="mdl-textfield mdl-js-textfield">
+							<input class="mdl-textfield__input" type="text" id="sample2">
+							<label class="mdl-textfield__label" for="sample1">DD/MM</label>
+						  </div>
+						</form>
+				      </td>
+					</tr>
+					<tr>
+					  <td><p>Security Code: </p></td>
+					  <td>
+						<form action="#">
+						  <div class="mdl-textfield mdl-js-textfield">
+							<input class="mdl-textfield__input" type="text" id="sample3">
+							<label class="mdl-textfield__label" for="sample1">CVC</label>
+						  </div>
+						</form>
+				       </td>
+					</tr>
+				  </tbody>
+				</table>
+			</div>
+			
+			<!-- create div for paypal payment -->
+			<div style="display: none" id="paypalDiv">
+				<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+				<input type="hidden" name="cmd" value="_s-xclick">
+				<input type="hidden" name="hosted_button_id" value="5N4RRUT8ZWQ8Y">
+				<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+				<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+				</form>
+			</div>
+		
+			<!-- order button -->
+			<button onClick="closeTab()" style="color: white; background-color: #667c8a" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"> Order <i class="material-icons" style="color: white">attach_money</i> </button>
+			
+			<script>
+				var canClose = true;
+				function payCredit() {
+					document.getElementById("creditDiv").style.display = "block";
+					document.getElementById("paypalDiv").style.display = "none";
+					canClose = true;
+				}
+				function payPaypal() {
+					document.getElementById("creditDiv").style.display = "none";
+					document.getElementById("paypalDiv").style.display = "block";
+					canClose = true;
+				}
+				function clearTabs() {
+					document.getElementById("creditDiv").style.display = "none";
+					document.getElementById("paypalDiv").style.display = "none";
+					canClose = true;
+				}
+				function closeTab() {
+					if(canClose) modal.style.display = "none";
+				}
+				
+			</script>
+			
+		</div>
+	</div>	
+	  
+    <section class="mdl-layout__tab-panel is-active" id="fixed-tab-1">
+      <div class="page-content">
+       		<style>
+				.tab1 {
+					height: 100%;
+					margin: 0;
+					position: relative;
+					width: 100%;
+					height: 100%;
+					background-image: url('assets/images/cover_cake1.jpg');
+					background-size: cover;
+				}
+		  	</style>
+        	<div class="tab1">
+					<!-- Wide card with share menu button -->
+					<style>
+					.fa {
+						 padding: 20px;
+						 font-size: 20px;
+						 width: 20px;
+						 text-align: center;
+						 text-decoration: none;
+						 border-radius: 50%;
+					}
+					.fa:hover {
+						 opacity: 0.7;
+					}
+					.fa-facebook {
+						 background: #3B5998;
+						 color: white;
+					}
+					.fa-twitter {
+						background: #55ACEE;
+						color: white;
+					}
+					.fa-google-plus {
+						background: #7F1819;
+						color: white;
+					}
+					.column {
+						float: left;
+						width: 50%;
+						font-family: 'Roboto', sans-serif;
+					}
+					.row:after {
+						content: "";
+						display: table;
+						clear: both;
+					}
+					.tab1-contents {
+						margin-left: auto;
+						margin-right: auto;
+						height:930px;
+						width: 1200px;
+						text-align: center;
+						background-color: #667c8a;
+						color: white;
+						font-family: 'Roboto', sans-serif;
+					}
+					.tab1-contents-table {
+						color: white;
+						font-family: 'Futura', sans-serif;
+						border-spacing: 100px 0;
+					}
+					</style>
+					<br><br><br>
+				<div class="tab1-contents">
+					<br><br>
+					<img src="assets/images/logo.png" width="593" height="139" alt=""/>
+					<br><br>
+					<h6 style="color: white">Our vision is to inspire creativity within our community <span style="color: #67c2f9"><strong>in the sweetest way possible.</strong></span></h6>
+					<br><br>
+					<table class="tab1-contents-table" width="1150" border="0" align="center">
+					  <tbody>
+						<tr height="50%">
+						  <td width="50%" valign="top">
+							<h4 style="color: #67c2f9; font-family: 'Futura', sans-serif; text-align: left"><i class="material-icons" style="color: #67c2f9">cake</i>  <strong>About</strong></h4>
+							<p style="font-size: 12pt; text-align: left">We encourage creativity at all stages of the cake-making process. We believe that crafting a premium cake is a team effort. Our custom cake feature allows us to craft our cakes according to your creative mind. Each cake is handcrafted with high-quality ingredients for an authentic flavor. That's why they are so easy to enjoy!</p>
+						  </td>
+						  <td width="50%" valign="top">
+							<h4 style="color: #67c2f9; font-family: 'Futura', sans-serif; text-align: left;"><i class="material-icons" style="color: #67c2f9">access_time</i>  <strong>History</strong></h4>
+							<p style="font-size: 12pt; text-align: left">The Caketeria was born in 2019, when Mr. FBLA embarked on a journey to share his love of sweets and hunger for creativity. To this day, we seek to provide a new experience for all members of the community.</p>
+						  </td>
+						</tr>
+						<tr height="50%">
+						  <td width="50%" valign="top">
+							<h4 style="color: #67c2f9; font-family: 'Futura', sans-serif; text-align: left;"><i class="material-icons" style="color: #67c2f9">room_service</i>  <strong>Services</strong></h4>
+							<p style="font-size: 12pt; text-align: left">We tailor our cakes to any and every event: weddings, birthdays, corporate parties, and more! Customers can select from our menu of carefully crafted cakes or harness their creative abilities and customize their own.</p>
+						  </td>
+						  <td width="50%" valign="top">
+							<h4 style="color: #67c2f9; font-family: 'Futura', sans-serif; text-align: left;"><i class="material-icons" style="color: #67c2f9">location_on</i>  <strong>Location and Hours</strong></h4>
+							<p style="font-size: 12pt; text-align: left">1234 Unnamed St, Unnamed City, CA, 12345</p>
+							<table border="0" cellspacing="0" cellpadding="0" align="left">
+							  <tbody>
+								<tr>
+								  <td><strong>Weekdays:</strong></td>
+								  <td>10:00am - 8:00pm</td>
+								</tr>
+								<tr>
+								  <td><strong>Weekends:</strong></td>
+								  <td>12:00pm - 5:00pm</td>
+								</tr>
+							  </tbody>
+							</table>
+						  </td>
+						</tr>
+					  </tbody>
+					</table>
+				  
+				  <h4 style="color: #67c2f9; font-family: 'Futura', sans-serif"><i class="material-icons" style="color: #67c2f9">people</i>  <strong>Social Media</strong></h4>
+				  <p style="font-family: 'Futura', sans-serif; font-size: 12pt; text-align: center">Follow our social media accounts for the latest updates and newest cakes!</p>
+				  <div class="tab1-contents-socialmedia">
+						<a href="https://www.facebook.com/The-Caketeria-423707861699999/" class="fa fa-facebook"></a>
+						<a href="https://twitter.com/TCaketeria?s=17" class="fa fa-twitter"></a>
+						<a href="mailto:thecaketeriabusiness@gmail.com" class="fa fa-google-plus"></a>
+				  </div>
+       		  </div>
+		  <br><br><br>
+		</div>
+      </div>
+    </section>
+    <section class="mdl-layout__tab-panel" id="fixed-tab-2">
+      <div class="page-content">
+		<!-- CSS for tab 2 -->
+      	<style>
+			.tab2 {
+				height: 100%;
+				width: 100%;
+				background-image: url('assets/images/cover_cake2.jpg');
+				background-size: cover;
+				align-content: center;
+			}
+			.tab2-contents  {
+				width: 1200px;
+				height: 1760px;
+				margin: auto;
+				background-color: #667c8a;
+				text-align: center;
+				color: white;
+				font-family: 'Futura', sans-serif;
+			}
+			.tab2-contents-table {
+				font-family: 'Futura', sans-serif;
+				color: white;
+			}
+			.tab2-contents-heading {
+				color: white;
+				margin-left: 150px;
+				margin-right: 150px;
+			}
+		 </style>
+         <div class="tab2">
+		    <br><br><br>
+			<div class="tab2-contents">
+				<!-- tab2 heading -->
+				<div class="tab2-contents-heading">
+					<br><h1 style="color: #67c2f9; font-family: 'Futura', sans-serif;"><strong>Cake Menu</strong></h1>
+					<p style="font-size: 14pt">Below you will find a selection of our ready-to-go cakes. Each recipe is uniquely designed to provide to most fulfilling experience.</p>
+				</div>
+				<!-- table with pictures, prices, and descriptions for cakes -->
+				<table class="tab2-contents-table" align="center" width="1000" border="0" cellspacing="0" cellpadding="20">
+				  <tbody>
+					<tr>
+					  <td><img src="assets/images/premade/cake1.jpg" width="350" height="262" alt=""/></td>
+					  <td>
+						<h5 style="color: #67c2f9; text-align: left; font-family: 'Futura', sans-serif"><strong>Tangerine Tart</strong></h5>
+						<p style="text-align: left">Our Tangerine Tart is a tangy treat with tangerine filling, coated with a dark chocolate glaze and finished with breaded chocolate crumbs and tangerine slices.</p>
+					  </td>
+					  <td style="text-align: center">
+						<h5>$27.00</h5>
+						<button onClick="addCakeFromMenu(1)" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
+						  <i class="material-icons" style="color: white">attach_money</i>
+						</button>
+					  </td>
+					</tr>
+					<tr>
+					  <td><img src="assets/images/premade/cake2.jpg" width="350" height="262" alt=""/></td>
+					  <td>
+						<h5 style="color: #67c2f9; text-align: left; font-family: 'Futura', sans-serif"><strong>Strawberry Shortcake</strong></h5>
+						<p style="text-align: left">Out strawberry shortcake is a soft sponge cake, layered with a creamy custard and topped with strawberry icing and fresh strawberries.</p>
+					  </td>
+					  <td style="text-align: center">
+						<h5>$32.00</h5>
+						<button onClick="addCakeFromMenu(2)" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
+						  <i class="material-icons" style="color: white">attach_money</i>
+						</button>
+					  </td>
+					</tr>
+					<tr>
+					  <td><img src="assets/images/premade/cake3.jpg" width="350" height="262" alt=""/></td>
+					  <td>
+						<h5 style="color: #67c2f9; text-align: left; font-family: 'Futura', sans-serif"><strong>Berry Bliss</strong></h5>
+						<p style="text-align: left">The Berry Bliss is a fruity delight with layered swirls and raspberry filling. It is coated with our signature raspberry glaze. The cake is topped off with a green tea crispt and mini croissants.</p>
+					  </td>
+					  <td style="text-align: center">
+						<h5>$26.00</h5>
+						<button onClick="addCakeFromMenu(3)" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
+						  <i class="material-icons" style="color: white">attach_money</i>
+						</button>
+					  </td>
+					</tr>
+					<tr>
+					  <td><img src="assets/images/premade/cake4.jpg" width="350" height="262" alt=""/></td>
+					  <td>
+						<h5 style="color: #67c2f9; text-align: left; font-family: 'Futura', sans-serif"><strong>Classic Chocolate</strong></h5>
+						<p style="text-align: left">The Classic Chocolate is a moist and rich sponge cake, glazed with chocolate cream and finished with almonds annd chocolate chunks.</p>
+					  </td>
+					  <td style="text-align: center">
+						<h5>$28.50</h5>
+						<button onClick="addCakeFromMenu(4)" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
+						  <i class="material-icons" style="color: white">attach_money</i>
+						</button>
+					  </td>
+					</tr>
+					<tr>
+					  <td><img src="assets/images/premade/cake5.jpg" width="350" height="262" alt=""/></td>
+					  <td>
+						<h5 style="color: #67c2f9; text-align: left; font-family: 'Futura', sans-serif"><strong>S'mores Special</strong></h5>
+						<p style="text-align: left">A customer favorite, the S'Mores Special has a marshmallow filling with graham cracker crust, a slightly toasted finish, and is topped with </p>
+					  </td>
+					  <td style="text-align: center">
+						<h5>$29.00</h5>
+						<button onClick="addCakeFromMenu(5)" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
+						  <i class="material-icons" style="color: white">attach_money</i>
+						</button>
+					  </td>
+					</tr>
+				  </tbody>
+				</table>
+			</div>
+			<br><br><br>
+		 </div>
+      </div>
+    </section>
+    <section class="mdl-layout__tab-panel" id="fixed-tab-3">
+      <div class="page-content">
+		  <!-- CSS code for the third tab -->
+      		<style>
+				.tab3 {
+					height: 100%;
+					margin: 0;
+					position: relative;
+					background-image: url('assets/images/cover_cake3.jpg');
+					background-size: cover;
+				}
+				.tab3-contents-wrapper {
+					width: 1200px;
+					height: 800px;
+					margin-left: auto;
+					margin-right: auto;
+					background-color: #667c8a;
+					text-align: center;
+					color: white;
+				}
+				.tab3-contents {
+					margin-left: 200px;
+					margin-right: 200px;
+					color: white;
+					font-family: 'Roboto', sans-serif;
+				}
+		  	</style>
+      	<div class="tab3">
+			<br><br><br>
+      		<div class="tab3-contents-wrapper">
+      		<div class="tab3-contents">
+			<!-- Header for tab3 -->
+      		<br><h1 style="color: #67c2f9; font-family: 'Futura', sans-serif;"><strong>Cake Menu</strong></h1>
+			<p style="font-family: 'Futura',sans-serif; font-size: 14pt">Here, you can customize your own cake.</p>
+				<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+				  <!-- Create the tabs for custom cake -->
+				  <div style="background-color: white" class="mdl-tabs__tab-bar">
+					  <a href="#shapes-panel" class="mdl-tabs__tab is-active">Shape/Size</a>
+					  <a href="#flavors-panel" class="mdl-tabs__tab">Flavor</a>
+					  <a href="#addons-panel" class="mdl-tabs__tab">Add-Ons</a>
+					  <a onClick="updateText()" href="#overview-panel" class="mdl-tabs__tab">Overview</a>
+				  </div>
+				  <div style="background-color: white" class="mdl-tabs__panel is-active" id="shapes-panel">
+					<table width="500" border="0" cellspacing="0" cellpadding="20" align="center">
+					  <tbody>
+						<tr valign="top">
+						  <!-- custom shape selection -->
+						  <td style="border-bottom: 1px solid #667c8a;">
+							  <h5 style="color: #667c8a; text-align: left; font-family: 'Roboto', sans-serif; font-size: 20pt"><strong>Shape</strong></h5>
+						  </td>
+						  <td style="border-bottom: 1px solid #667c8a; text-align: left">
+							<label for="shape-circle" class="mdl-radio mdl-js-radio">
+							  <input onClick="setShape(this.value)" type="radio" id="shape-circle" name="shape" value="Circle" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">Circle</span>
+							</label><br>
+							<label for="shape-square" class="mdl-radio mdl-js-radio">
+							  <input onClick="setShape(this.value)" type="radio" id="shape-square" name="shape" value="Square" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">Square</span>
+							</label><br>
+							<label for="shape-rectangle" class="mdl-radio mdl-js-radio">
+							  <input onClick="setShape(this.value)" type="radio" id="shape-rectangle" name="shape" value="Rectangle" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">Rectangle</span>
+							</label><br>
+							<label for="shape-heart" class="mdl-radio mdl-js-radio">
+							  <input onClick="setShape(this.value)" type="radio" id="shape-heart" name="shape" value="Heart" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">Heart</span>
+							</label><br>
+						  </td>
+						</tr>
+						<tr valign="top">
+						  <!-- custom size selection -->
+						  <td>
+							  <h5 style="color: #667c8a; text-align: left; font-family: 'Roboto', sans-serif; font-size: 20pt"><strong>Size</strong></h5>
+						  </td>
+						  <td style="text-align: left">
+							<label for="size-6" class="mdl-radio mdl-js-radio">
+							  <input onClick="addCost(29); setSize(this.value)" type="radio" id="size-6" name="size" value="6 inches" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">6 inches 	- 	$29.00</span>
+							</label><br>
+							<label for="size-8" class="mdl-radio mdl-js-radio">
+							  <input onClick="addCost(39); setSize(this.value)" type="radio" id="size-8" name="size" value="8 inches" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">8 inches 	- 	$39.00</span>
+							</label><br>
+							<label for="size-10" class="mdl-radio mdl-js-radio">
+							  <input onClick="addCost(49); setSize(this.value)" type="radio" id="size-10" name="size" value="10 inches" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">10 inches 	- 	$49.00</span>
+							</label><br>
+						  </td>
+						</tr>
+					  </tbody>
+					</table>
+					  
+				  </div>
+				
+				  <!-- custom flavor selection -->
+				  <div class="mdl-tabs__panel" id="flavors-panel" style="background-color: white">
+					<table width="500" border="0" cellspacing="0" cellpadding="20" align="center">
+					  <tbody>
+						<tr valign="top">
+						  <td>
+							  <h5 style="color: #667c8a; text-align: left; font-family: 'Roboto', sans-serif; font-size: 20pt"><strong>Flavor</strong></h5>
+						  </td>
+						  <td style="text-align: left">
+							<label for="flavor-chocolate" class="mdl-radio mdl-js-radio">
+							  <input onClick="setFlavor(this.value)" type="radio" id="flavor-chocolate" name="flavor" value="Chocolate" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">Chocolate</span>
+							</label><br>
+							<label for="flavor-strawberry" class="mdl-radio mdl-js-radio">
+							  <input onClick="setFlavor(this.value)" type="radio" id="flavor-strawberry" name="flavor" value="Strawberry" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">Strawberry</span>
+							</label><br>
+							<label for="flavor-coffee" class="mdl-radio mdl-js-radio">
+							  <input onClick="setFlavor(this.value)" type="radio" id="flavor-coffee" name="flavor" value="Coffee" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">Coffee</span>
+							</label><br>
+							<label for="flavor-greentea" class="mdl-radio mdl-js-radio">
+							  <input onClick="setFlavor(this.value)" type="radio" id="flavor-greentea" name="flavor" value="Green Tea" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">Green Tea</span>
+							</label><br>
+							<label for="flavor-vanilla" class="mdl-radio mdl-js-radio">
+							  <input onClick="setFlavor(this.value)" type="radio" id="flavor-vanilla" name="flavor" value="Vanilla" class="mdl-radio__button">
+							  <span style="color: #667c8a" class="mdl-radio__label">Vanilla</span>
+							</label><br>
+						  </td>
+						</tr>
+					  </tbody>
+					</table>
+				  </div>
+					
+				  <!-- custom add-ons -->
+				  <div class="mdl-tabs__panel" id="addons-panel" style="background-color: white">
+					<table width="500" border="0" cellspacing="0" cellpadding="20" align="center" style="color: #667c8a">
+					  <tbody>
+						<tr>
+					      <td style="border-bottom: 1px solid #667c8a;">
+							  <h5 style="color: #667c8a; text-align: left; font-family: 'Roboto', sans-serif; font-size: 20pt"><strong>Text</strong></h5><p style="text-align: left">(ex: Happy Birthday, John!)</p>
+						  </td>
+					      <td style="border-bottom: 1px solid #667c8a;">
+							<form action="#">
+							  <div style="width: 200px" class="mdl-textfield mdl-js-textfield">
+								<input class="mdl-textfield__input" type="text" id="addon-text">
+								<label class="mdl-textfield__label" for="addon-text">Text...</label>
+							  </div>
+							</form>
+						  </td>
+						</tr>
+						<tr valign="top">
+						  <td style="border-bottom: 1px solid #667c8a;">
+							  <h5 style="color: #667c8a; text-align: left; font-family: 'Roboto', sans-serif; font-size: 20pt"><strong>Candles</strong></h5><p style="text-align: left">(Complimentary, MAX of 18)</p>
+						  </td>
+						  <td style="border-bottom: 1px solid #667c8a;">
+							<form action="#">
+							  <div style="width: 200px" class="mdl-textfield mdl-js-textfield mdl-textfield">
+								<input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="addon-candles">
+								<label class="mdl-textfield__label" for="addon-candles">Number...</label>
+								<span class="mdl-textfield__error">Please enter a number.</span>
+							  </div>
+							</form>
+						  </td>
+						</tr>
+					  </tbody>
+					</table>
+				  </div>
+				  <div class="mdl-tabs__panel" id="overview-panel" style="background-color: white">
+					<table width="400" border="0" cellspacing="0" cellpadding="10" align="center" style="color: #667c8a">
+					  <tbody>
+						<tr>
+						  <td style="border-bottom: 1px solid #667c8a;"><h5 style="color: #667c8a; text-align: left; font-family: 'Roboto', sans-serif"><strong>Shape:</strong></h5></td>
+						  <td valign="bottom" style="border-bottom: 1px solid #667c8a;"><p id="shapeLabel">Please select a shape!</p></td>
+						</tr>
+						<tr>
+						  <td style="border-bottom: 1px solid #667c8a;"><h5 style="color: #667c8a; text-align: left; font-family: 'Roboto', sans-serif"><strong>Size:</strong></h5></td>
+						  <td valign="bottom" style="border-bottom: 1px solid #667c8a;"><p id="sizeLabel">Please select a size!</p></td>
+						</tr>
+						<tr>
+						  <td style="border-bottom: 1px solid #667c8a;"><h5 style="color: #667c8a; text-align: left; font-family: 'Roboto', sans-serif"><strong>Flavor:</strong></h5></td>
+						  <td valign="bottom" style="border-bottom: 1px solid #667c8a;"><p id="flavorLabel">Please select a flavor!</p></td>
+						</tr>
+						<tr>
+						  <td style="border-bottom: 1px solid #667c8a"><h5 style="color: #667c8a; text-align: left; font-family: 'Roboto', sans-serif"><strong>Add-Ons:</strong></h5></td>
+						  <td valign="bottom" style="border-bottom: 1px solid #667c8a"><p id="textLabel">N/A</p><p id="candlesLabel"></p></td>
+						</tr>
+						<tr>
+						  <td><h5 style="color: #667c8a; text-align: left; font-family: 'Roboto', sans-serif"><strong>Price:</strong></h5></td>
+						  <td valign="bottom"><p style="font-size: 20pt" id="price"><strong>$--.--</strong></p></td>
+						</tr>
+					  </tbody>
+					</table>
+				  <br>
+				  
+				  <!-- buy button -->
+				  <button onClick="addCustomCake()" style="color: white; background-color: #667c8a" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+					Buy <i class="material-icons" style="color: white">attach_money</i>
+				  </button>
+					  
+				  <p style="color: darkred" id="errormessage"></p>
+					  
+				  <br>
+				  </div>
+					<script>
+						//shopping cart variables
+						var total_money;
+						
+						//custom cake variables
+						var cake_shape, cake_flavor, cake_text, candles, price, cake_size;
+						cake_shape="";
+						cake_flavor="";
+						cake_size="";
+						
+						//menu cake variables
+						var tangerine_tart, strawberry_shortcake, berry_bliss, classic_chocolate, smores_special;
+						berry_bliss = 0;
+						tangerine_tart = 0;
+						strawberry_shortcake = 0;
+						classic_chocolate = 0;
+						smores_special = 0;
+						
+						//set initial price and candles to 0
+						price = 0;
+						candles = 0;
+						cake_text = "";
+						total_money = 0;
+						
+						//javascript code for changing the overview screen
+						function updateText() {
+						  cake_text = document.getElementById("addon-text").value;
+						  if(cake_text != "") document.getElementById("textLabel").innerHTML = "Cake text: '" + cake_text + "'";
+						  setCandles();
+						}
+						//code to set the shape of the custom cake
+						function setShape(shape) {
+						  document.getElementById("shapeLabel").innerHTML = shape;
+						  cake_shape = shape;
+						}
+						//code to set the flavor of the cake
+						function setFlavor(flavor) {
+						  document.getElementById("flavorLabel").innerHTML = flavor;
+						  cake_flavor = flavor;
+						}
+						//code to set the size of the cake
+						function setSize(size) {
+						  document.getElementById("sizeLabel").innerHTML = size;
+						  cake_size = size;
+						}
+						//code to set the candles of the addons
+						function setCandles() {
+						  candles = document.getElementById("addon-candles").value;
+						  if(candles != 0) document.getElementById("candlesLabel").innerHTML = candles + " candle(s)";
+						}
+						//code to add the cost to the overview panel
+						function addCost(input) {
+						  if(input == 29) price = 29;
+						  if(input == 39) price = 39;
+						  if(input == 49) price = 49;
+							
+						  document.getElementById("price").innerHTML = "$"+price;
+						}
+						//code to add a menu cake to the shopping cart
+						function addCakeFromMenu(cakeNumber) {
+						  var node = document.createElement("LI");
+						  if(cakeNumber==1) {
+							  var textnode = document.createTextNode("$27.00 - Tangerine Tart");
+							  tangerine_tart++;
+							  total_money += 27;
+						  }
+						  if(cakeNumber==2) {
+							  var textnode = document.createTextNode("$32.00 - Strawberry Shortcake");
+							  strawberry_shortcake++;
+							  total_money += 32;
+						  }
+						  if(cakeNumber==3) {
+							  var textnode = document.createTextNode("$26.00 - Berry Bliss");
+							  berry_bliss++;
+							  total_money += 26;
+						  }
+						  if(cakeNumber==4) {
+							  var textnode = document.createTextNode("$28.50 - Classic Chocolate");
+							  classic_chocolate++;
+							  total_money += 28.50;
+						  }
+						  if(cakeNumber==5) {
+							  var textnode = document.createTextNode("$29.00 - S'Mores Special");
+							  smores_special++;
+							  total_money += 29;
+						  }
+						  node.appendChild(textnode);
+						  document.getElementById("cart").appendChild(node);
+						}
+						//code to add a custom cake to the shopping cart
+						function addCustomCake() {
+						   if(cake_flavor!="" && cake_shape!="" && cake_size!="" && price!=0) {
+							  var node = document.createElement("LI");
+							  var textnode = document.createTextNode("$"+price+" - Custom Cake");
+							  node.appendChild(textnode);
+							  document.getElementById("cart").appendChild(node);
+							  total_money += price;
+							  document.getElementById("cart_money").innerHTML = total_money;
+							   //add tax to 2 decimal places
+							  document.getElementById("cart_money2").innerHTML = Math.floor((total_money*1.08)*100)/100;
+							   
+							  //hide error message
+							   document.getElementById("errormessage").innerHTML = "";
+						   }
+						   else {
+							   //show error message
+							  document.getElementById("errormessage").innerHTML = "Please select a shape and a flavor.";
+						   }
+						}
+					
+						// Get the modal
+						var modal = document.getElementById('myModal');
+
+						// Get the button that opens the modal
+						var btn = document.getElementById("shoppingCartButton");
+
+						// Get the <span> element that closes the modal
+						var span = document.getElementsByClassName("close")[0];
+
+						// When the user clicks the button, open the modal 
+						btn.onclick = function() {
+						  document.getElementById("cart_money").innerHTML = total_money;
+						  document.getElementById("cart_money2").innerHTML = Math.floor((total_money*1.08)*100)/100;
+						  modal.style.display = "block";
+						}
+
+						// When the user clicks on <span> (x), close the modal
+						span.onclick = function() {
+						  modal.style.display = "none";
+						}
+
+						// When the user clicks anywhere outside of the modal, close it
+						window.onclick = function(event) {
+						  if (event.target == modal) {
+							modal.style.display = "none";
+						  }
+						}
+						</script>
+						<style>
+						body {font-family: 'Futura', sans-serif;}
+
+						/* The Modal (background) */
+						.modal {
+						  display: none; /* Hidden by default */
+						  position: fixed; /* Stay in place */
+						  z-index: 1; /* Sit on top */
+						  padding-top: 100px; /* Location of the box */
+						  left: 0;
+						  top: 0;
+						  width: 100%; /* Full width */
+						  height: 100%; /* Full height */
+						  overflow: auto; /* Enable scroll if needed */
+						  background-color: rgb(0,0,0); /* Fallback color */
+						  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+						}
+
+						/* Modal Content */
+						.modal-content {
+						  background-color: #fefefe;
+						  margin: auto;
+						  padding: 20px;
+						  border: 1px solid #888;
+						  width: 60%;
+						}
+
+						/* The Close Button */
+						.close {
+						  color: #aaaaaa;
+						  float: right;
+						  font-size: 28px;
+						  font-weight: bold;
+						}
+
+						.close:hover,
+						.close:focus {
+						  color: #000;
+						  text-decoration: none;
+						  cursor: pointer;
+						}
+					</style>
+				</div>
+			</div>
+		   </div>
+		</div>
+      </div>
+		
+    </section>
+  </main>
+
+<!-- create footer -->
+<footer class="mdl-mini-footer" id="footer">
+	<style>
+		#footer {
+			position: relative;
+			background: #444444;
+			height: 15px;
+			padding-bottom: 20px;
+			padding-top: 0px;
+			font-family: 'Roboto';
+		}
+	</style>
+  <div class="mdl-mini-footer__left-section">
+    <p>Images are from Pixabay and Pexel. All images are free for commercial use, since they are Creative Common Images.</p>
+  </div>
+</footer>
+</div>
+</body>
+</html>
